@@ -1,8 +1,8 @@
 name: GitHub Actions Crontab DEMO
-
+on:
   schedule:
     # * is a special character in YAML so you have to quote this string
-    - cron:  '7,37 * * * *'
+    - cron:  '11,41 * * * *'
 
 jobs:
   test_schedule:
