@@ -1,0 +1,14 @@
+name: GitHub Actions Crontab DEMO
+
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '7,37 * * * *'
+
+jobs:
+  test_schedule:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Every time
+        run: echo "This step will always run"
+      - name: report time
+        run: echo `date`
