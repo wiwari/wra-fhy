@@ -1,0 +1,50 @@
+# This is a basic workflow to help you get started with Actions
+
+name: GitHub Actions Crontab DEMO
+
+# Controls when the workflow will run
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '17 6,9,23 * * *'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "test_schedule"
+  test_schedule:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latestls
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Chang Timezone to Taipei
+      - name: change timezone
+        run: sudo timedatectl set-timezone Asia/Taipei
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+        with: 
+          ref: 'fetchdb'
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '>3.8' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+      - run: python fetchdb.py
+
+      # Runs a single command using the runners shell
+      - name: show time
+        run: echo `date`
+
+      - name: Push to fetchdb branch
+        run: |
+          git config --local user.name wiwari          
+          # git config --local user.name "GitHub Action"
+          git config --local user.email 89345325+wiwari@users.noreply.github.com
+          # git config --local user.email "action@github.com"
+          git add
+          git commit -m "github action generated"
+          git push origin fetchdb
