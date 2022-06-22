@@ -6,7 +6,7 @@ name: GitHub Actions Fetch FHY
 on:
   schedule:
     # * is a special character in YAML so you have to quote this string
-    - cron:  '17 6,9,23 * * *'
+    - cron:  '17 1,15,22 * * *'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

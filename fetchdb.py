@@ -49,7 +49,7 @@ class fetchdb:
 		self.connection.cursor().execute(commandInitDaily)
 	def replaceStation(self,data):
 		commandReplaceStation="""
-		INSERT OR REPLACE INTO statilson(StationNo,StationName,Latitude,Longitude,BasinNo,BasinName,HydraulicConstruction	,CityCode,FullWaterHeight,DeadWaterHeight,Storage,ProtectionFlood,Importance)
+		INSERT OR REPLACE INTO station(StationNo,StationName,Latitude,Longitude,BasinNo,BasinName,HydraulicConstruction	,CityCode,FullWaterHeight,DeadWaterHeight,Storage,ProtectionFlood,Importance)
 		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?);
 		"""
 		self.connection.cursor().execute(commandReplaceStation,data)
@@ -88,20 +88,20 @@ if __name__=='__main__':
 		vls.append(element['OutflowTotal'] if ("OutflowTotal" in element) else None)
 		fd.replaceDaily(vls)
 	# update fhy station info
-	# for element in station: 
-	# 	vl = [element['StationNo']]
-	# 	vl.append(element['StationName'])
-	# 	vl.append(element['Latitude'] if ("Latitude" in element) else None)
-	# 	vl.append(element['Longitude'] if ("Longitude" in element) else None)
-	# 	vl.append(element['BasinNo'] if ("BasinNo" in element) else None)
-	# 	vl.append(element['BasinName'] if ("BasinName" in element) else None)
-	# 	vl.append(element['HydraulicConstruction'] if ("HydraulicConstruction" in element) else None)
-	# 	vl.append(element['CityCode'] if ("CityCode" in element) else None)
-	# 	vl.append(element['FullWaterHeight'] if ("FullWaterHeight" in element) else None)
-	# 	vl.append(element['DeadWaterHeight'] if ("DeadWaterHeight" in element) else None)
-	# 	vl.append(element['Storage'] if ("Storage" in element) else None)
-	# 	vl.append(element['ProtectionFlood'] if ("ProtectionFlood" in element) else None)
-	# 	vl.append(element['Importance'] if ("Importance" in element) else None)
-	# 	fd.replaceStation(vl)
+	for element in station: 
+		vl = [element['StationNo']]
+		vl.append(element['StationName'])
+		vl.append(element['Latitude'] if ("Latitude" in element) else None)
+		vl.append(element['Longitude'] if ("Longitude" in element) else None)
+		vl.append(element['BasinNo'] if ("BasinNo" in element) else None)
+		vl.append(element['BasinName'] if ("BasinName" in element) else None)
+		vl.append(element['HydraulicConstruction'] if ("HydraulicConstruction" in element) else None)
+		vl.append(element['CityCode'] if ("CityCode" in element) else None)
+		vl.append(element['FullWaterHeight'] if ("FullWaterHeight" in element) else None)
+		vl.append(element['DeadWaterHeight'] if ("DeadWaterHeight" in element) else None)
+		vl.append(element['Storage'] if ("Storage" in element) else None)
+		vl.append(element['ProtectionFlood'] if ("ProtectionFlood" in element) else None)
+		vl.append(element['Importance'] if ("Importance" in element) else None)
+		fd.replaceStation(vl)
 	fd.close()
 
