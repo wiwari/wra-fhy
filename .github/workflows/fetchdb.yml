@@ -16,7 +16,8 @@ jobs:
   # This workflow contains a single job called "test_schedule"
   fhy_schedule:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latestls
+    runs-on: ubuntu-latest
+
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
