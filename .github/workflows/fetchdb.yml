@@ -27,7 +27,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
         with: 
-          ref: 'fetchdb'
 
       - uses: actions/setup-python@v4
         with:
@@ -39,7 +38,7 @@ jobs:
       - name: show time
         run: echo `date`
 
-      - name: Push to fetchdb branch
+      - name: Push 
         run: |
           git config --local user.name wiwari          
           # git config --local user.name "GitHub Action"
@@ -47,4 +46,4 @@ jobs:
           # git config --local user.email "action@github.com"
           git add data/
           git commit -m "github action fetch FHY"
-          git push origin fetchdb
+          git push
