@@ -35,4 +35,11 @@ jobs:
           echo ------------------
           cat time.log
           echo ------------------
+          # git config user.name github-actions
+          git config user.name wiwari
+          # git config user.email github-actions@github.com
+          git config user.email 89345325+wiwari@users.noreply.github.com
+          git add .
+          git commit -m "github action generated"
+          git push
 
