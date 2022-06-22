@@ -49,7 +49,7 @@ class fetchdb:
 		self.connection.cursor().execute(commandInitDaily)
 	def replaceStation(self,data):
 		commandReplaceStation="""
-		INSERT OR REPLACE INTO station(StationNo,StationName,Latitude,Longitude,BasinNo,BasinName,HydraulicConstruction	,CityCode,FullWaterHeight,DeadWaterHeight,Storage,ProtectionFlood,Importance)
+		INSERT OR REPLACE INTO statilson(StationNo,StationName,Latitude,Longitude,BasinNo,BasinName,HydraulicConstruction	,CityCode,FullWaterHeight,DeadWaterHeight,Storage,ProtectionFlood,Importance)
 		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?);
 		"""
 		self.connection.cursor().execute(commandReplaceStation,data)
