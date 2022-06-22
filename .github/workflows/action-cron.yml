@@ -21,6 +21,16 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      # Chang Timezone to Taipei
+      - name: show timezone
+        run: timedatectl
+
+      - name: change timezone
+        run: sudo timedatectl set-timezone Asia/Taipei
+
+      - name: show timezone after
+        run: timedatectl
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
