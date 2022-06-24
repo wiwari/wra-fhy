@@ -1,13 +1,12 @@
 # This is a basic workflow to help you get started with Actions
 
-name: GitHub Actions Crontab DEMO
+name: Log time
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron:  '11,41 * * * *'
+  # schedule:
+  #   # * is a special character in YAML so you have to quote this string
+  #   - cron:  '11/30 * * * *'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -22,34 +21,29 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Chang Timezone to Taipei
-      - name: show timezone
-        run: timedatectl
-
       - name: change timezone
         run: sudo timedatectl set-timezone Asia/Taipei
 
-      - name: show timezone after
+      - name: show timezone
         run: timedatectl
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
+      # Print time
+      - name: show time
         run: echo `date`
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo `date` >> time.log
-          echo ------------------
-          cat time.log
-          echo ------------------
-          # git config user.name github-actions
-          git config user.name wiwari
-          # git config user.email github-actions@github.com
-          git config user.email 89345325+wiwari@users.noreply.github.com
-          git add .
-          git commit -m "github action generated"
-          git push
+      # Log time
+      - name: log time
+        run: echo `date` >> time.log
 
+      - name: Push to master branch
+        run: |
+          # git config --local user.name wiwari          
+          git config --local user.name "GitHub Action"
+          # git config --local user.email 89345325+wiwari@users.noreply.github.com
+          git config --local user.email "action@github.com"
+          git add
+          git commit -m "github action update info by $(date)"
+          git push
