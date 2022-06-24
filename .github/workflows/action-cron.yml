@@ -44,6 +44,6 @@ jobs:
           git config --local user.name "GitHub Action"
           # git config --local user.email 89345325+wiwari@users.noreply.github.com
           git config --local user.email "action@github.com"
-          git add
+          git add .
           git commit -m "github action update info by $(date)"
           git push
