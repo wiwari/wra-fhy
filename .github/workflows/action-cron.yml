@@ -40,10 +40,10 @@ jobs:
 
       - name: Push to master branch
         run: |
-          git config --local user.name wiwari          
-          # git config --local user.name "GitHub Action"
-          git config --local user.email 89345325+wiwari@users.noreply.github.com
-          # git config --local user.email "action@github.com"
+          # git config --local user.name wiwari          
+          git config --local user.name github-actions
+          # git config --local user.email 89345325+wiwari@users.noreply.github.com
+          git config --local user.email github-actions@github.com
           git add .
           git commit -m "github action update info by $(date)"
           git push
