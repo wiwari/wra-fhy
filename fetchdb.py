@@ -1,15 +1,16 @@
 #!/usr/bin/env python
-from ast import FormattedValue
-from mimetypes import init
+from ast import FormattedValue, arg
+# from mimetypes import init
 import sqlite3
 import urllib.request, json 
-
+# import collections
+import argparse
 
 class fetchdb:	
 	def __init__(self,file) -> None:
 		self.connection=sqlite3.connect(file)
 		self.initDbStation()
-		self.iniDbDaily()
+		self.initDbDaily()
 	
 	def close(self):
 		self.connection.close()
@@ -35,8 +36,9 @@ class fetchdb:
 		);
 		"""
 		self.connection.cursor().execute(commandInitStation)
+		self.connection.commit()
 
-	def iniDbDaily(self):
+	def initDbDaily(self):
 		commandInitDaily = """
 		CREATE TABLE IF NOT EXISTS
 		"daily" (
@@ -47,13 +49,17 @@ class fetchdb:
 			PRIMARY KEY("StationNo","Time")
 		);"""
 		self.connection.cursor().execute(commandInitDaily)
+		self.connection.commit()
+
 	def replaceStation(self,data):
+		"""update station from data"""
 		commandReplaceStation="""
 		INSERT OR REPLACE INTO station(StationNo,StationName,Latitude,Longitude,BasinNo,BasinName,HydraulicConstruction	,CityCode,FullWaterHeight,DeadWaterHeight,Storage,ProtectionFlood,Importance)
 		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?);
 		"""
 		self.connection.cursor().execute(commandReplaceStation,data)
 		self.connection.commit()
+
 	def replaceDaily(self,data):
 		commandReplaceDaily="""
 		INSERT OR REPLACE INTO daily(StationNo,Time,InflowTotal,OutflowTotal)
@@ -62,46 +68,101 @@ class fetchdb:
 		self.connection.cursor().execute(commandReplaceDaily,data)
 		self.connection.commit()
 
-def fhyDaily():
-	with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily?") as url:
-		data = json.loads(url.read().decode())
-		print("Daily總站數: " , len(data))
-		data.sort(key=lambda x: x["StationNo"])
-		return data
+	def qeuryDailyJSON(self):		
+		commandQueryDaily="""
+		select  station.StationName, daily.StationNo, max(daily.Time) as Time, daily.InflowTotal, daily.OutflowTotal from daily join station on  daily.StationNo = station.StationNo 
+		group by daily.StationNo ORDER by daily.StationNo
+		;
+		"""
+		cur=self.connection.cursor()
+		rows = cur.execute(commandQueryDaily).fetchall()
+		objects_list = []	
+		# -----------------	
+		# for row in rows:
+		# 	d = collections.OrderedDict()
+		# 	d["StationName"] = row[0]
+		# 	d["StationNo"] = row[1]
+		# 	d["Time"] = row[2]
+		# 	d["InflowTotal"] = row[3]
+		# 	d["OutflowTotal"] = row[4]
+		# 	objects_list.append(d)
+		# -----------------
+		# self.connection.commit()
+		
+		# for i, element in enumerate(rows[0]):
+		# 	print(i, element)
+		
+		
+		objects_list = [dict((cur.description[i][0], value) \
+			for i, value in enumerate(row)) for row in rows]
 
-def fhyStation():
-	with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?") as url:
-		data = json.loads(url.read().decode())
-		print("Station總站數: " , len(data))
-		data.sort(key=lambda x: x["StationNo"])
-		return data
-	
+		return json.dumps(objects_list, ensure_ascii=False)
+
+	def fhyStation(self):
+		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?") as url:
+			data = json.loads(url.read().decode())
+			print("Station總站數: " , len(data))
+			data.sort(key=lambda x: x["StationNo"])
+			return data
+
+	def fhyDaily(self):
+		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily?") as url:
+			data = json.loads(url.read().decode())
+			print("Daily總站數: " , len(data))
+			data.sort(key=lambda x: x["StationNo"])
+			return data
+
+	def dailyUpdate(self):		
+		daily=self.fhyDaily()
+		# update fhy daily data
+		for element in daily:
+			vls = [element['StationNo'], element['Time'] ]
+			vls.append(element['InflowTotal'] if ("InflowTotal" in element) else None)
+			vls.append(element['OutflowTotal'] if ("OutflowTotal" in element) else None)
+			self.replaceDaily(vls)
+
+	def stationUpdate(self):
+		station=self.fhyStation()
+		# update fhy station info
+		for element in station: 
+			vl = [element['StationNo']]
+			vl.append(element['StationName'])
+			vl.append(element['Latitude'] if ("Latitude" in element) else None)
+			vl.append(element['Longitude'] if ("Longitude" in element) else None)
+			vl.append(element['BasinNo'] if ("BasinNo" in element) else None)
+			vl.append(element['BasinName'] if ("BasinName" in element) else None)
+			vl.append(element['HydraulicConstruction'] if ("HydraulicConstruction" in element) else None)
+			vl.append(element['CityCode'] if ("CityCode" in element) else None)
+			vl.append(element['FullWaterHeight'] if ("FullWaterHeight" in element) else None)
+			vl.append(element['DeadWaterHeight'] if ("DeadWaterHeight" in element) else None)
+			vl.append(element['Storage'] if ("Storage" in element) else None)
+			vl.append(element['ProtectionFlood'] if ("ProtectionFlood" in element) else None)
+			vl.append(element['Importance'] if ("Importance" in element) else None)
+			self.replaceStation(vl)
+
+	def daily2json(self):
+		res=self.qeuryDailyJSON()
+		# print(res)
+		print(res)
+
+	def update(self):
+		self.dailyUpdate()
+		self.stationUpdate()
+
 if __name__=='__main__':
+	parser = argparse.ArgumentParser()
+	parser.add_argument("--db", help='sqlite database path', default='data/fhy-reservoir.db')
+	parser.add_argument("--update", help="fetch data with WRA FHY API and update database ", action='store_true')
+	parser.add_argument("--json", help="write latest daily data into JSON file", action='store_true')
+
+	args = parser.parse_args()
 	
-	fd=fetchdb('data/fhy-reservoir.db')	
-	daily=fhyDaily()
-	station=fhyStation()
-	# update fhy daily data
-	for element in daily:
-		vls = [element['StationNo'], element['Time'] ]
-		vls.append(element['InflowTotal'] if ("InflowTotal" in element) else None)
-		vls.append(element['OutflowTotal'] if ("OutflowTotal" in element) else None)
-		fd.replaceDaily(vls)
-	# update fhy station info
-	for element in station: 
-		vl = [element['StationNo']]
-		vl.append(element['StationName'])
-		vl.append(element['Latitude'] if ("Latitude" in element) else None)
-		vl.append(element['Longitude'] if ("Longitude" in element) else None)
-		vl.append(element['BasinNo'] if ("BasinNo" in element) else None)
-		vl.append(element['BasinName'] if ("BasinName" in element) else None)
-		vl.append(element['HydraulicConstruction'] if ("HydraulicConstruction" in element) else None)
-		vl.append(element['CityCode'] if ("CityCode" in element) else None)
-		vl.append(element['FullWaterHeight'] if ("FullWaterHeight" in element) else None)
-		vl.append(element['DeadWaterHeight'] if ("DeadWaterHeight" in element) else None)
-		vl.append(element['Storage'] if ("Storage" in element) else None)
-		vl.append(element['ProtectionFlood'] if ("ProtectionFlood" in element) else None)
-		vl.append(element['Importance'] if ("Importance" in element) else None)
-		fd.replaceStation(vl)
+	fd=fetchdb(args.db)	 # default SQLite3 DB path: "data/fhy-reservoir.db"
+	if args.update:
+		print("updating...")
+		fd.update()
+	if args.json:
+		fd.daily2json()
 	fd.close()
+
 
