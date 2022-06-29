@@ -29,6 +29,8 @@ jobs:
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
+        with:
+          ref: 'action' #action branch
 
       # Print time
       - name: show time
@@ -46,4 +48,4 @@ jobs:
           git config --local user.email github-actions@github.com
           git add .
           git commit -m "github action update info by $(date)"
-          git push
+          git push origin action
