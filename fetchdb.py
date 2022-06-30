@@ -102,14 +102,14 @@ class fetchdb:
 		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?$orderby=StationNo%20asc") as url:
 			data = json.loads(url.read().decode())
 			print("Station總站數: " , len(data))
-			data.sort(key=lambda x: x["StationNo"])
+			# data.sort(key=lambda x: x["StationNo"])
 			return data
 
 	def fhyDaily(self):
 		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily?$orderby=StationNo%20asc") as url:
 			data = json.loads(url.read().decode())
 			print("Daily總站數: " , len(data))
-			data.sort(key=lambda x: x["StationNo"])
+			# data.sort(key=lambda x: x["StationNo"])
 			return data
 
 	def dailyUpdate(self):		
@@ -163,8 +163,10 @@ if __name__=='__main__':
 		fd.update()
 	if args.json:
 		fd.daily2json()
-	# if args.test:		
+	# if args.test:	
+	# 	print(fd.fhyDaily())	
 	# 	print("test")	
+		
 	fd.close()
 
 
