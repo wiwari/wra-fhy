@@ -8,27 +8,40 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.7.0/sql-wasm.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
     <style>
-        body {position: absolute;  width: 90%; height: 90vh; text-align: center;}
-        #tester { position:  flex ;width: 600px ;height: 100% ; margin: auto;  }
-        @media screen and (max-width: 600px) {
-            #tester {
-                /* position:  flex ; */
-                max-width:90%;              
+        html{
+            height: calc(100vh - 1em);
+        }
+        body {
+            width: 96%;   
+            text-align: center;
+            height: 100%;
+        }
+        header {
+            margin: 0 auto;
+            height: 2em;
+        }
+        .container {
+            display: flex;           
+
+            height: calc(100% - 2em);            
+        }
+            
+        #plotly { 
+            width: 100% ;
+            max-width:960px;   
+            margin: 0 auto;   
+            max-height: calc(100%); 
+        }
+        /* @media screen and (max-width: 600px) {           
             }
-            }
-        @media screen and (max-height: 800px) {
-            #tester {
-                /* position:  block ; */
-                max-height: calc(100%) ;  
-                /* margin-top: 5%;    
-                margin-bottom: 5%;*/
-                            } 
-            }
+        @media screen and (max-height: 600px) {
+            } */
         </style>
 </head>
 <body>
     <!-- <h1>南勢溪羅好壩日均流量</h1> -->
-    羅好壩日平均流量
+    <header>羅好壩日平均流量</header>
+    
     <script>
         // transpose        
         function getDataSourcesFromResultSet(resultSet) {
@@ -88,15 +101,17 @@
             //     console.log(plotdata[idx]["Time"]);
             // }
             
-            Plotly.newPlot(document.getElementById('tester'), [{
+            Plotly.newPlot(document.getElementById('plotly'), [{
                 x: getDataSourcesFromResultSet(plotdata)['Time'],
                 y: getDataSourcesFromResultSet(plotdata)['Inflow'],
 
                 type: 'scatter',
+                hovertemplate: '%{y:.2f} m³/s' +
+                        '<br> %{x|%Y/%m/%d}<br>' ,
                 name: "羅好壩流量"
-
-            }], {                
-                margin: { t: 30, r:5 , l:40},                
+            }], {      
+                // hovermode:'x unified',          
+                margin: { t: 30, b: 35 , r: 5 , l: 40},                
                 // title: '南勢溪羅好壩',
                 xaxis: {
                     // title: {
@@ -108,13 +123,14 @@
                 yaxis: {
                     range: [0, 30] ,
                     title: {
-                        text: '日平均流量 m³/s (cms)',
+                        text: '流入量 m³/s (cms)', //日平均流量
                     },
                     type: 'linear'
                 },
             },
             {
-                responsive: true
+                responsive: true,
+                
                 // , scrollZoom: true
             }
             );
@@ -126,8 +142,9 @@
         // loadLatestFlow();
         plotQuery();
     </script>
-
-    <div id="tester" ></div>
+    <div class="container">
+        <div id="plotly" ></div>
+    </div>
     <script>
 
 
