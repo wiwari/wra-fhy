@@ -40,9 +40,10 @@
 </head>
 <body>
     <!-- <h1>南勢溪羅好壩日均流量</h1> -->
-    <header>羅好壩日平均流量</header>
+    <header> 日平均流量</header>
     
     <script>
+
         // transpose        
         function getDataSourcesFromResultSet(resultSet) {
             transposed = {};
@@ -54,7 +55,7 @@
                         transposed[resultSet[0].columns[col]][val]=resultSet[0].values[val][col];
                     }
                 }
-                 console.log (transposed)
+                //  console.log (transposed)
                 return transposed;
             }
 
@@ -80,20 +81,26 @@
 
 
 
-        const plotQuery = async () => {
+        const plotQuery = async (StationNo, top = 11) => {
+            console.log("StationNo " + StationNo);
             //查看南勢溪過去11天流量
             const sqlPromise  =  await initSqlJs({
-    // Required to load the wasm binary asynchronously. Of course, you can host it wherever you want
-    // You can omit locateFile completely when running in node
+            // Required to load the wasm binary asynchronously. Of course, you can host it wherever you want
+            // You can omit locateFile completely when running in node
             locateFile: filename  => `https://sql.js.org/dist/${filename}`
             });
             const dataPromise = fetch("data/fhy-reservoir.db").then(res => res.arrayBuffer());
             // const dataPromise = fetch("https://github.com/wiwari/act-cron/raw/action/data/fhy-reservoir.db").then(res => res.arrayBuffer());
             const [SQL, buf] = await Promise.all([sqlPromise, dataPromise])
             const db = new SQL.Database(new Uint8Array(buf));
-            let sqlstr = "SELECT  (Time), round (InflowTotal * 10000.0 /24/3600,2) as Inflow  from daily where StationNo='10213' ORDER by date(time) desc limit 11;"
+            let sqlstr = "SELECT  (Time), round (InflowTotal * 10000.0 /24/3600,2) as Inflow  from daily where StationNo=$_staNo ORDER by date(time) desc limit $_top;"
             // let sqlstr = "SELECT  (Time), InflowTotal from daily where StationNo='10213' ORDER by date(time) asc;"
-            plotdata =( db.exec(sqlstr));
+            plotdata =( db.exec(sqlstr,{"$_staNo":StationNo, "$_top": top}));
+
+            let sqlstrStation = "SELECT StationName FROM station WHERE StationNo = $_staNo;"
+            StationNameResult =( db.exec(sqlstrStation,{"$_staNo":StationNo}));
+            if(getDataSourcesFromResultSet(StationNameResult)['StationName'].length == 1)
+                StationName = getDataSourcesFromResultSet(StationNameResult)['StationName'][0];
             db.close();
             
             // console.log(JSON.stringify(getDataSourcesFromResultSet(plotdata), null, 4))
@@ -108,7 +115,7 @@
                 type: 'scatter',
                 hovertemplate: '%{y:.2f} m³/s' +
                         '<br> %{x|%Y/%m/%d}<br>' ,
-                name: "羅好壩流量"
+                name: StationName//"羅好壩流量"
             }], {      
                 // hovermode:'x unified',          
                 margin: { t: 30, b: 35 , r: 5 , l: 40},                
@@ -136,18 +143,27 @@
             );
         }
 
-
-
-
+        //parameter
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        queryStationNo="10213";
+        if (urlParams.has('StationNo')) //URL papameter format: ?center=lat,lng
+            if (foundz = urlParams.get('StationNo').match(/^(\d*)$/)) {
+                queryStationNo = parseInt(foundz[1]);
+            }
+        days=11;
+        if (urlParams.has('days')) //URL papameter format: ?center=lat,lng
+            if (foundz = urlParams.get('days').match(/^(\d*)$/)) {
+                days = parseInt(foundz[1]);
+            }
+        
         // loadLatestFlow();
-        plotQuery();
+        plotQuery(queryStationNo,days);
     </script>
     <div class="container">
         <div id="plotly" ></div>
     </div>
     <script>
-
-
     
     </script>
     
