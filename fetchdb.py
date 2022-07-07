@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from array import array
 from ast import FormattedValue, arg
 # from mimetypes import init
 import sqlite3
@@ -98,6 +99,36 @@ class fetchdb:
 
 		return json.dumps(objects_list, ensure_ascii=False)
 
+	def qeuryDailyStationList(self):
+		# get most updating StationNo		
+		commandQueryDaily="""
+		SELECT r.StationNo 
+		from (select  StationNo ,max(julianday(Time)) as d from daily 
+ 		group by StationNo ORDER by StationNo ) as r  where d > julianday('now','-7 days');
+		
+		"""
+		cur=self.connection.cursor()
+		rows = cur.execute(commandQueryDaily).fetchall()
+		objects_list = []	
+		# -----------------	
+		# for row in rows:
+		# 	d = collections.OrderedDict()
+		# 	d["StationName"] = row[0]
+		# 	d["StationNo"] = row[1]
+		# 	d["Time"] = row[2]
+		# 	d["InflowTotal"] = row[3]
+		# 	d["OutflowTotal"] = row[4]
+		# 	objects_list.append(d)
+		# -----------------
+		# self.connection.commit()
+		
+		# for i, element in enumerate(rows[0]):
+		# 	print(i, element)
+		
+		objects_list = [{"StationNoList":[row[0] for row in rows]}]
+
+		return json.dumps(objects_list, ensure_ascii=False)		
+
 	def fhyStation(self):
 		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?$orderby=StationNo%20asc") as url:
 			data = json.loads(url.read().decode())
@@ -145,6 +176,12 @@ class fetchdb:
 		# print(res)
 		print(res)
 
+	def dailyStaList2json(self):
+		res=self.qeuryDailyStationList()
+		# print(res)
+		print(res)
+
+
 	def update(self):
 		self.dailyUpdate()
 		self.stationUpdate()
@@ -154,6 +191,7 @@ if __name__=='__main__':
 	parser.add_argument("--db", help='sqlite database path', default='data/fhy-reservoir.db')
 	parser.add_argument("--update", help="fetch data with WRA FHY API and update database ", action='store_true')
 	parser.add_argument("--json", help="write latest daily data into JSON file", action='store_true')
+	parser.add_argument("--stalist", help="write active StationNo list of JSON file", action='store_true')
 	# parser.add_argument("--test", help="test", action='store_true')
 	args = parser.parse_args()
 	
@@ -163,6 +201,8 @@ if __name__=='__main__':
 		fd.update()
 	if args.json:
 		fd.daily2json()
+	if args.stalist:
+		fd.dailyStaList2json()
 	# if args.test:	
 	# 	print(fd.fhyDaily())	
 	# 	print("test")	
