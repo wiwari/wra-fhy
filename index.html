@@ -65,9 +65,9 @@
         // load lastest daily flow on every station
         const loadLatestFlow = async () => {
             const sqlPromise  =  await initSqlJs({
-    // Required to load the wasm binary asynchronously. Of course, you can host it wherever you want
-    // You can omit locateFile completely when running in node
-            locateFile: filename  => `https://sql.js.org/dist/${filename}`
+                // Required to load the wasm binary asynchronously. Of course, you can host it wherever you want
+                // You can omit locateFile completely when running in node
+                locateFile: filename => `https://sql.js.org/dist/${filename}`
             });
             const dataPromise = fetch("data/fhy-reservoir.db").then(res => res.arrayBuffer());
             // const dataPromise = fetch("https://github.com/wiwari/act-cron/raw/action/data/fhy-reservoir.db").then(res => res.arrayBuffer());
@@ -75,49 +75,66 @@
             const db = new SQL.Database(new Uint8Array(buf));
             // let sqlstr = 'select StationNo, max(Time), InflowTotal, OutflowTotal from daily  group by StationNo ORDER by StationNo  ;'
             let sqlstr = "SELECT json_object( 'StationNo', StationNo,'Time', max(Time),'InflowTotal', InflowTotal ,'OutflowTotal' , OutflowTotal) FROM daily  group by StationNo ORDER by StationNo ;"
-            res =( db.exec(sqlstr));
+            res = (db.exec(sqlstr));
             db.close();
         }
 
 
 
         const plotQuery = async (StationNo, top = 11) => {
-            console.log("StationNo " + StationNo);
-            //查看南勢溪過去11天流量
-            const sqlPromise  =  await initSqlJs({
-            // Required to load the wasm binary asynchronously. Of course, you can host it wherever you want
-            // You can omit locateFile completely when running in node
-            locateFile: filename  => `https://sql.js.org/dist/${filename}`
+            //查看過去11或top流量資料
+            const sqlPromise = await initSqlJs({
+                // You can omit locateFile completely when running in node
+                locateFile: filename => `https://sql.js.org/dist/${filename}`
             });
             const dataPromise = fetch("data/fhy-reservoir.db").then(res => res.arrayBuffer());
             // const dataPromise = fetch("https://github.com/wiwari/act-cron/raw/action/data/fhy-reservoir.db").then(res => res.arrayBuffer());
             const [SQL, buf] = await Promise.all([sqlPromise, dataPromise])
             const db = new SQL.Database(new Uint8Array(buf));
-            let sqlstr = "SELECT  (Time), round (InflowTotal * 10000.0 /24/3600,2) as Inflow  from daily where StationNo=$_staNo ORDER by date(time) desc limit $_top;"
-            // let sqlstr = "SELECT  (Time), InflowTotal from daily where StationNo='10213' ORDER by date(time) asc;"
-            plotdata =( db.exec(sqlstr,{"$_staNo":StationNo, "$_top": top}));
+
 
             let sqlstrStation = "SELECT StationName FROM station WHERE StationNo = $_staNo;"
-            StationNameResult =( db.exec(sqlstrStation,{"$_staNo":StationNo}));
-            if(getDataSourcesFromResultSet(StationNameResult)['StationName'].length == 1)
+            StationNameResult = (db.exec(sqlstrStation, { "$_staNo": StationNo }));
+            if (getDataSourcesFromResultSet(StationNameResult)['StationName'].length == 1)
                 StationName = getDataSourcesFromResultSet(StationNameResult)['StationName'][0];
+
+            let sqlstr = "SELECT  (Time), round (InflowTotal * 10000.0 /24/3600,2) as Inflow , round (OutflowTotal * 10000.0 /24/3600,2) as Outflow from daily where StationNo=$_staNo ORDER by date(time) desc limit $_top;"
+            // let sqlstr = "SELECT  (Time), InflowTotal from daily where StationNo='10213' ORDER by date(time) asc;"
+            InFlowData = (db.exec(sqlstr, { "$_staNo": StationNo, "$_top": top }));
+            
             db.close();
             
-            // console.log(JSON.stringify(getDataSourcesFromResultSet(plotdata), null, 4))
-            // for ( idx in plotdata){
-            //     console.log(plotdata[idx]["Time"]);
+            // console.log(JSON.stringify(getDataSourcesFromResultSet(InFlowData), null, 4))
+            // for ( idx in InFlowData){
+            //     console.log(InFlowData[idx]["Time"]);
             // }
-            
-            Plotly.newPlot(document.getElementById('plotly'), [{
-                x: getDataSourcesFromResultSet(plotdata)['Time'],
-                y: getDataSourcesFromResultSet(plotdata)['Inflow'],
+
+            OutFlow = {
+                x: getDataSourcesFromResultSet(InFlowData)['Time'],
+                y: getDataSourcesFromResultSet(InFlowData)['Outflow'],
 
                 type: 'scatter',
                 hovertemplate: '%{y:.2f} m³/s' +
                         '<br> %{x|%Y/%m/%d}<br>' ,
-                name: StationName//"羅好壩流量"
-            }], {      
-                // hovermode:'x unified',          
+                name: StationName + "流出" //"羅好壩流量"
+            };
+
+            InFlow = {
+                x: getDataSourcesFromResultSet(InFlowData)['Time'],
+                y: getDataSourcesFromResultSet(InFlowData)['Inflow'],
+
+                type: 'scatter',
+                hovertemplate: '%{y:.2f} m³/s' +
+                        '<br> %{x|%Y/%m/%d}<br>' ,
+                name: StationName + "流入" //"羅好壩流量"
+            };
+
+
+
+
+
+            Plotly.newPlot(document.getElementById('plotly'), [OutFlow,InFlow], {      
+                hovermode:'x unified',          
                 margin: { t: 30, b: 35 , r: 5 , l: 40},                
                 // title: '南勢溪羅好壩',
                 xaxis: {
@@ -128,9 +145,10 @@
                     tickformat: '%m-%d (%a)\n %Y'
                 },
                 yaxis: {
-                    range: [0, 30] ,
+                    // range: [0, 30] ,
+                    rangemode: 'tozero',
                     title: {
-                        text: '流入量 m³/s (cms)', //日平均流量
+                        text: '流量 m³/s (cms)', //日平均流量
                     },
                     type: 'linear'
                 },
