@@ -129,11 +129,7 @@
                 name: StationName + "流入" //"羅好壩流量"
             };
 
-
-
-
-
-            Plotly.newPlot(document.getElementById('plotly'), [OutFlow,InFlow], {      
+            pt_layout = {      
                 hovermode:'x unified',          
                 margin: { t: 30, b: 35 , r: 5 , l: 40},                
                 // title: '南勢溪羅好壩',
@@ -152,12 +148,19 @@
                     },
                     type: 'linear'
                 },
-            },
-            {
+                showlegend: false,
+            };
+            pt_config = {
                 responsive: true,
-                
+
                 // , scrollZoom: true
-            }
+            };
+
+            Plotly.newPlot(document.getElementById('plotly'),
+                [OutFlow,InFlow], 
+                pt_layout,
+                pt_config
+
             );
         }
 
