@@ -9,7 +9,8 @@
     <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
     <style>
         html{
-            height: calc(100vh - 1em);           
+            height: calc(100vh - 1em); 
+            height: calc( calc(var(--vh, 1vh) * 100) -1em );          
         }
         body {
             width: 96%;   
@@ -180,12 +181,12 @@
         
         // loadLatestFlow();
 
-        // scrolling to bottom
-        const scrollingElement = (document.scrollingElement || document.body);
-        const scrollToBottom = () => {
-        scrollingElement.scrollTop = scrollingElement.scrollHeight;
-        }
-        scrollToBottom();
+        // mobile bar fix
+        window.addEventListener('resize', () => {
+        // We execute the same script as before
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+        });
 
         plotQuery(queryStationNo,days);
     </script>
