@@ -10,7 +10,7 @@
     <style>
         html{
             height: calc(100vh - 1em); 
-            height: calc(var(--vh, 1vh) - 1em) ;          
+            /* height: calc(var(--vh, 1vh) - 1em) ;           */
         }
         body {
             width: 96%;   
@@ -182,13 +182,12 @@
         // loadLatestFlow();
 
         // mobile bar fix --vh as css variable
-        let vh = window.innerHeight;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-        window.addEventListener('resize', () => {
-        // We execute the same script as before
-        let vh = window.innerHeight;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-        });
+            // let vh = window.innerHeight;
+            // document.documentElement.style.setProperty('--vh', `${vh}px`);
+            // window.addEventListener('resize', () => {
+            //     let vh = window.innerHeight;
+            //     document.documentElement.style.setProperty('--vh', `${vh}px`);
+            // });
 
         plotQuery(queryStationNo,days);
     </script>
