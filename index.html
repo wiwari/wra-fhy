@@ -182,13 +182,12 @@
         // loadLatestFlow();
 
         // mobile bar fix --vh as css variable
-        let vh = window.innerHeight;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-        window.addEventListener('resize', () => {
-        // We execute the same script as before
-        let vh = window.innerHeight;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-        });
+            // let vh = window.innerHeight;
+            // document.documentElement.style.setProperty('--vh', `${vh}px`);
+            // window.addEventListener('resize', () => {
+            //     let vh = window.innerHeight;
+            //     document.documentElement.style.setProperty('--vh', `${vh}px`);
+            // });
 
         plotQuery(queryStationNo,days);
     </script>
