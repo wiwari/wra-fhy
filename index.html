@@ -15,7 +15,6 @@
             width: 96%;   
             text-align: center;
             height: 100%;
-            max-height: fill-available;
         }
         header {
             margin: 0 auto;
@@ -180,6 +179,14 @@
             }
         
         // loadLatestFlow();
+
+        // scrolling to bottom
+        const scrollingElement = (document.scrollingElement || document.body);
+        const scrollToBottom = () => {
+        scrollingElement.scrollTop = scrollingElement.scrollHeight;
+        }
+        scrollToBottom();
+
         plotQuery(queryStationNo,days);
     </script>
     <div class="container">
