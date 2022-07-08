@@ -115,9 +115,8 @@
                 y: getDataSourcesFromResultSet(InFlowData)['Outflow'],
 
                 type: 'scatter',
-                hovertemplate: '%{y:.2f} m³/s' +
-                        '<br> %{x|%Y/%m/%d}<br>' ,
-                name: StationName + "流出" //"羅好壩流量"
+                hovertemplate: '%{y:.2f} m³/s' ,
+                name: StationName + "出" //"羅好壩流量"
             };
 
             InFlow = {
@@ -125,13 +124,19 @@
                 y: getDataSourcesFromResultSet(InFlowData)['Inflow'],
 
                 type: 'scatter',
-                hovertemplate: '%{y:.2f} m³/s' +
-                        '<br> %{x|%Y/%m/%d}<br>' ,
-                name: StationName + "流入" //"羅好壩流量"
+                hovertemplate: '%{y:.2f} m³/s' ,
+                name: StationName + "入" //"羅好壩流量"
             };
 
             pt_layout = {      
-                hovermode:'x unified',  
+                hovermode:'x unified', 
+                hoverlabel : {
+                    bgcolor : "rgba(255,255,212,0.8)" ,
+                    bordercolor : "rgba(255,255,255,0)"  ,
+                    font :{
+                        size: 16,
+                    }
+                } ,
                 dragmode : false ,        
                 margin: { t: 30, b: 40 , r: 5 , l: 40},                
                 // title: '南勢溪羅好壩',
@@ -150,7 +155,7 @@
                     },
                     type: 'linear'
                 },
-                showlegend: false,
+                showlegend: false,                
             };
             pt_config = {
                 responsive: true,
