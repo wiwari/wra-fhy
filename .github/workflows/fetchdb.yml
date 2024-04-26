@@ -27,11 +27,11 @@ jobs:
         run: sudo timedatectl set-timezone Asia/Taipei
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: 'action' #action branch
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '>3.8' # Version range or exact version of a Python version to use, using SemVer's version range syntax
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
