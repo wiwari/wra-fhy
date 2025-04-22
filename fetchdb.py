@@ -3,6 +3,7 @@ from array import array
 from ast import FormattedValue, arg
 # from mimetypes import init
 import sqlite3
+import ssl
 import urllib.request, json 
 # import collections
 import argparse
@@ -130,14 +131,16 @@ class fetchdb:
 		return json.dumps(objects_list, ensure_ascii=False)		
 
 	def fhyStation(self):
-		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?$orderby=StationNo%20asc") as url:
+		ctx = ssl.create_default_context(cafile="certs/fhy-wra-gov-tw-chain.pem")
+		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?$orderby=StationNo%20asc", context=ctx) as url:
 			data = json.loads(url.read().decode())
 			print("Station總站數: " , len(data))
 			# data.sort(key=lambda x: x["StationNo"])
 			return data
 
 	def fhyDaily(self):
-		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily?$orderby=StationNo%20asc") as url:
+		ctx = ssl.create_default_context(cafile="certs/fhy-wra-gov-tw-chain.pem")
+		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily?$orderby=StationNo%20asc", context=ctx) as url:
 			data = json.loads(url.read().decode())
 			print("Daily總站數: " , len(data))
 			# data.sort(key=lambda x: x["StationNo"])
