@@ -131,7 +131,7 @@ class fetchdb:
 		return json.dumps(objects_list, ensure_ascii=False)		
 
 	def fhyStation(self):
-		ctx = ssl.create_default_context(cafile="certs/fhy-wra-gov-tw-chain.pem")
+		ctx = ssl.create_default_context(cafile="certs/fhy-wra-gov-tw.pem")
 		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?$orderby=StationNo%20asc", context=ctx) as url:
 			data = json.loads(url.read().decode())
 			print("Station總站數: " , len(data))
@@ -139,7 +139,7 @@ class fetchdb:
 			return data
 
 	def fhyDaily(self):
-		ctx = ssl.create_default_context(cafile="certs/fhy-wra-gov-tw-chain.pem")
+		ctx = ssl.create_default_context(cafile="certs/fhy-wra-gov-tw.pem")
 		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily?$orderby=StationNo%20asc", context=ctx) as url:
 			data = json.loads(url.read().decode())
 			print("Daily總站數: " , len(data))
