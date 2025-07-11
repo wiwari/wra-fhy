@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from array import array
 from ast import FormattedValue, arg
+import time
 # from mimetypes import init
 import sqlite3
 import ssl
@@ -133,20 +134,37 @@ class fetchdb:
 	def fhyStation(self):
 		ctx = ssl.create_default_context()
 		ctx.load_verify_locations(cafile="certs/fhy-wra-gov-tw-chain.pem")
-		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?$orderby=StationNo%20asc", context=ctx) as url:
-			data = json.loads(url.read().decode())
-			print("Station總站數: " , len(data))
-			# data.sort(key=lambda x: x["StationNo"])
-			return data
+		try:
+			with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?$orderby=StationNo%20asc", context=ctx) as url:
+				data = json.loads(url.read().decode())
+				print("Station總站數: " , len(data))
+				# data.sort(key=lambda x: x["StationNo"])
+				return data
+		except urllib.error.URLError as e:
+			if isinstance(e.reason, TimeoutError):
+				print("Error: Connection timed out on fhyStation")
+			else:
+				print(f"URL Error occurred: {e.reason}")
+		except Exception as e:
+			print(f"An unexpected error occurred: {e}")
+
 
 	def fhyDaily(self):
 		ctx = ssl.create_default_context()
 		ctx.load_verify_locations(cafile="certs/fhy-wra-gov-tw-chain.pem")
-		with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily?$orderby=StationNo%20asc", context=ctx) as url:
-			data = json.loads(url.read().decode())
-			print("Daily總站數: " , len(data))
-			# data.sort(key=lambda x: x["StationNo"])
-			return data
+		try:
+			with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily?$orderby=StationNo%20asc", context=ctx) as url:
+				data = json.loads(url.read().decode())
+				print("Daily總站數: " , len(data))
+				# data.sort(key=lambda x: x["StationNo"])
+				return data
+		except urllib.error.URLError as e:
+			if isinstance(e.reason, TimeoutError):
+				print("Error: Connection timed out on fhyDaily")
+			else:
+				print(f"URL Error occurred: {e.reason}")
+		except Exception as e:
+			print(f"An unexpected error occurred: {e}")
 
 	def dailyUpdate(self):		
 		daily=self.fhyDaily()
@@ -189,6 +207,7 @@ class fetchdb:
 
 	def update(self):
 		self.dailyUpdate()
+		time.sleep(3)
 		self.stationUpdate()
 
 if __name__=='__main__':
