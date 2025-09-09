@@ -4,10 +4,10 @@ name: GitHub Actions Fetch FHY
 
 # Controls when the workflow will run
 on:
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    # 17:17 , 7:17 , 14:17      6:28, 11:19, 23:59  
-    - cron:  '17 0,1,14,15,22 * * *'
+  # schedule:
+  #   # * is a special character in YAML so you have to quote this string
+  #   # 17:17 , 7:17 , 14:17      6:28, 11:19, 23:59  
+  #   - cron:  '17 0,1,14,15,22 * * *'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
