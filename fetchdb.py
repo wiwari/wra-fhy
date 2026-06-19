@@ -153,7 +153,7 @@ class fetchdb:
 		ctx = ssl.create_default_context()
 		ctx.load_verify_locations(cafile="certs/fhy-wra-gov-tw-chain.pem")
 		try:
-			with urllib.request.urlopen("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily?$orderby=StationNo%20asc", context=ctx) as url:
+			with urllib.request.urlopen("https://opendata.wra.gov.tw/api/v2/51023e88-4c76-4dbc-bbb9-470da690d539", context=ctx) as url:
 				data = json.loads(url.read().decode())
 				print("Daily總站數: " , len(data))
 				# data.sort(key=lambda x: x["StationNo"])
@@ -170,9 +170,9 @@ class fetchdb:
 		daily=self.fhyDaily()
 		# update fhy daily data
 		for element in daily:
-			vls = [element['StationNo'], element['Time'] ]
-			vls.append(element['InflowTotal'] if ("InflowTotal" in element) else None)
-			vls.append(element['OutflowTotal'] if ("OutflowTotal" in element) else None)
+			vls = [element['reservoiridentifier'], element['datetime'] ]
+			vls.append(element['inflow'] if ("inflow" in element) else None)
+			vls.append(element['outflowtotal'] if ("outflowtotal" in element) else None)
 			self.replaceDaily(vls)
 
 	def stationUpdate(self):
@@ -208,7 +208,7 @@ class fetchdb:
 	def update(self):
 		self.dailyUpdate()
 		time.sleep(3)
-		self.stationUpdate()
+		# self.stationUpdate() # removed as workround of wra API missing
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser()
